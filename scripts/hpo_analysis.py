@@ -21,8 +21,7 @@ CHAP_CORE_ROOT = ANALYSIS_ROOT.parent / "chap-core"
 # MODEL_NAME = "https://github.com/chap-models/chtorch.git"
 MODEL_NAME = "https://github.com/chap-models/auto_regressive_monthly_v2"
 DATASET_CSV = CHAP_CORE_ROOT / "example_data/vietnam_monthly.csv"
-CONFIG_YAML = CHAP_CORE_ROOT / "chap_core/hpo/config4.yaml"
-# CONFIG_YAML = ANALYSIS_ROOT / "scripts/minimal_template_config_hpo.yaml"
+CONFIG_YAML = ANALYSIS_ROOT / "scripts/config.yaml"
 OUTPUT_DIR = ANALYSIS_ROOT / "results/simple_hpo_eval"
 OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
 
