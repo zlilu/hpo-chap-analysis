@@ -1,11 +1,8 @@
 #!/usr/bin/env python3
 
 from pathlib import Path
-import re
 import subprocess
 import time
-
-import numpy as np
 import pandas as pd
 import xarray as xr
 
@@ -71,8 +68,6 @@ def make_base_command(output_file):
         str(DATASET_CSV),
         "--output-file",
         str(output_file),
-        # "--model-configuration-yaml",
-        # CONFIG_YAML,
         "--backtest-params.n-periods",
         str(N_PERIODS),
         "--backtest-params.n-splits",
@@ -80,6 +75,24 @@ def make_base_command(output_file):
         "--backtest-params.stride",
         str(STRIDE),
     ]
+
+
+def inspect_netcdf(nc_file):
+    """Print basic information about the NetCDF output."""
+    print(f"\nInspecting: {nc_file}")
+
+    with xr.open_dataset(nc_file) as ds:
+        print("\nDataset dimensions:")
+        print(dict(ds.sizes))
+
+        print("\nDataset variables:")
+        for name in ds.data_vars:
+            variable = ds[name]
+            print(f"- {name}: dims={variable.dims}, shape={variable.shape}, dtype={variable.dtype}")
+
+        print("\nDataset attributes:")
+        for key, value in ds.attrs.items():
+            print(f"- {key}: {value}")
 
 
 def compute_all_metrics(evaluation):
@@ -131,59 +144,41 @@ def compute_all_metrics(evaluation):
     return results
 
 
-def compare_metrics(fixed_metrics, hpo_metrics):
-    """Create a simple fixed-vs-HPO comparison table."""
+def compare_metrics(normal_metrics, hpo_metrics):
+    """Create a simple normal-vs-HPO comparison table."""
     metric_ids = sorted(
-        set(fixed_metrics) | set(hpo_metrics)
+        set(normal_metrics) | set(hpo_metrics)
     )
 
     rows = []
 
     for metric_id in metric_ids:
-        fixed = fixed_metrics.get(metric_id)
+        normal = normal_metrics.get(metric_id)
         hpo = hpo_metrics.get(metric_id)
 
         delta = None
         relative_change = None
 
-        if fixed is not None and hpo is not None:
-            delta = hpo - fixed
+        if normal is not None and hpo is not None:
+            delta = hpo - normal
 
-            if fixed != 0:
+            if normal != 0:
                 relative_change = (
-                    delta / abs(fixed)
+                    delta / abs(normal)
                 ) * 100
 
         rows.append(
             {
                 "metric": metric_id,
-                "fixed": fixed,
+                "normal": normal,
                 "hpo": hpo,
-                "delta_hpo_minus_fixed": delta,
+                "delta_hpo_minus_normal": delta,
                 "relative_change_pct": relative_change,
                 "hpo_objective": metric_id == HPO_METRIC,
             }
         )
 
     return pd.DataFrame(rows)
-
-
-def inspect_netcdf(nc_file):
-    """Print basic information about the NetCDF output."""
-    print(f"\nInspecting: {nc_file}")
-
-    with xr.open_dataset(nc_file) as ds:
-        print("\nDataset dimensions:")
-        print(dict(ds.sizes))
-
-        print("\nDataset variables:")
-        for name in ds.data_vars:
-            variable = ds[name]
-            print(f"- {name}: dims={variable.dims}, shape={variable.shape}, dtype={variable.dtype}")
-
-        print("\nDataset attributes:")
-        for key, value in ds.attrs.items():
-            print(f"- {key}: {value}")
 
 
 def main():
@@ -209,10 +204,18 @@ def main():
     normal_seconds = run_command(normal_command, normal_log)
     hpo_seconds = run_command(hpo_command, hpo_log)
 
+    print("\nRuntime comparison:")
+    print(f"- normal: {normal_seconds:.1f} seconds")
+    print(f"- hpo:    {hpo_seconds:.1f} seconds")
+    print(f"HPO / normal: {hpo_seconds / normal_seconds:.2f}x")
+
     normal_evaluation = Evaluation.from_file(normal_output)
     hpo_evaluation = Evaluation.from_file(hpo_output)
 
-    print("\nComputing fixed-model metrics...")
+    inspect_netcdf(normal_output)
+    inspect_netcdf(hpo_output)
+
+    print("\nComputing normal-model metrics...")
     normal_metrics = compute_all_metrics(normal_evaluation)
 
     print("\nComputing HPO-model metrics...")
@@ -234,16 +237,8 @@ def main():
         )
     )
 
-    print("\nRuntime comparison:")
-    print(f"- normal: {normal_seconds:.1f} seconds")
-    print(f"- hpo:    {hpo_seconds:.1f} seconds")
-    print(f"HPO / fixed: {hpo_seconds / normal_seconds:.2f}x")
-
     print(f"\nResults written to:")
     print(output_csv)
-
-    inspect_netcdf(normal_output)
-    inspect_netcdf(hpo_output)
 
 
 if __name__ == "__main__":
