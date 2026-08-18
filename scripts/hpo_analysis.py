@@ -21,7 +21,7 @@ CHAP_CORE_ROOT = ANALYSIS_ROOT.parent / "chap-core"
 # MODEL_NAME = "https://github.com/chap-models/chtorch.git"
 MODEL_NAME = "https://github.com/chap-models/auto_regressive_monthly_v2"
 DATASET_CSV = CHAP_CORE_ROOT / "example_data/vietnam_monthly.csv"
-CONFIG_YAML = ANALYSIS_ROOT / "scripts/config.yaml"
+CONFIG_YAML = ANALYSIS_ROOT / "scripts/auto_reg_monthly_v2_conf.yaml"
 OUTPUT_DIR = ANALYSIS_ROOT / "results/simple_hpo_eval"
 OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
 
@@ -29,7 +29,8 @@ N_PERIODS = 3
 N_SPLITS = 12 # monthly
 STRIDE = 1
 HPO_METRIC = "rmse"
-# N_TRIALS = 100
+SEARCHER = "tpe"
+MAX_TRIALS = 20
 # SEARCHERS = ["random", "tpe"]
 
 
@@ -201,6 +202,8 @@ def main():
         "hpo",
         "--estimator-options.metric",
         HPO_METRIC,
+        "--estimator-options.searcher",
+        SEARCHER,
     ]
 
     normal_seconds = run_command(normal_command, normal_log)
