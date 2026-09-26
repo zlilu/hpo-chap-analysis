@@ -17,20 +17,16 @@ from pathlib import Path
 HPO_DIR = Path(__file__).resolve().parent.parent
 REPO_ROOT = HPO_DIR.parent / "chap-core"
 RESULTS_DIR = HPO_DIR / "results" / "simple_eval"
-METRICS = ("rmse", "crps_log1p", "mae", "winkler_score_25_75")
-MAX_TRIALS = 20
+METRICS = ("crps_log1p", "crps", "rmse", "mae", "coverage_10_90", "coverage_25_75")
+MAX_TRIALS = 100
 SEED = 17
 
 
 def experiments():
-    # Honor the requested filename when present; current chap-core uses "hydro".
-    hydro = REPO_ROOT / "example_data" / "hyrdro_met_subset.csv"
-    if not hydro.is_file():
-        hydro = REPO_ROOT / "example_data" / "hydro_met_subset.csv"
-
     datasets = {
-        "vietnam_monthly": REPO_ROOT / "example_data" / "vietnam_monthly.csv",
-        "hydro_met_subset": hydro,
+        "lao": "https://raw.githubusercontent.com/dhis2/climate-health-data/main/lao/chap_LAO_admin1_monthly.csv", # smallest
+        "tha": "https://raw.githubusercontent.com/dhis2/climate-health-data/main/tha/chap_THA_admin1_monthly.csv", # largest
+        "vnm": "https://raw.githubusercontent.com/dhis2/climate-health-data/main/vnm/chap_VNM_admin1_monthly.csv", # second
     }
     models = {
         "minimal_template_example": {
@@ -44,6 +40,11 @@ def experiments():
             "search_space": HPO_DIR / "search_spaces" / "mstl_ss.yaml",
             "objective": "crps_log1p",
         },
+        "auto_regressive_monthly_v2": {
+            "name": "https://github.com/chap-models/auto_regressive_monthly_v2/",
+            "search_space": HPO_DIR / "search_spaces" / "auto_reg_ss.yaml",
+            "objective": "crps_log1p",
+        },
     }
 
     for model_id, model in models.items():
@@ -54,23 +55,23 @@ def experiments():
 
 def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("--n-splits", type=int, default=2, help="Backtest splits (default: 2)")
-    parser.add_argument("--n-periods", type=int, default=3, help="Forecast horizon (default: 3)")
-    parser.add_argument("--plan", action="store_true", help="Print the 12 runs without executing")
+    # parser.add_argument("--n-periods", type=int, default=3, help="Forecast horizon (chap default: 3)")
+    # parser.add_argument("--n-splits", type=int, default=7, help="Backtest splits (chap default: 7)")
+    parser.add_argument("--plan", action="store_true", help="Print the runs without executing")
     args = parser.parse_args()
-    if args.n_splits < 1 or args.n_periods < 1:
-        parser.error("--n-splits and --n-periods must be positive")
+    # if args.n_periods < 1 or args.n_splits < 1:
+    #     parser.error("--n-periods and --n-splits must be positive")
 
     runs = list(experiments())
     if args.plan:
-        for model_id, model, dataset_id, dataset, mode, searcher in runs:
-            print(f"{model_id} | {dataset_id} | {mode} | {searcher or '-'} | "
-                  f"objective={model['objective'] if searcher else '-'} | {dataset}")
+        for i, (model_id, model, dataset_id, dataset, mode, searcher) in enumerate(runs, start=1):
+            print(f"{i}. {model_id} | {dataset_id} | {mode} | {searcher or '-'} | "
+                  f"{model['objective'] if searcher else '-'} | {dataset}")
         return 0
 
     required_files = {
-        dataset for _, _, _, dataset, _, _ in runs
-    } | {
+    #     dataset for _, _, _, dataset, _, _ in runs
+    # } | {
         model["search_space"] for _, model, _, _, _, _ in runs
     }
     # } | {REPO_ROOT.parent / "minimal_template_example"}
@@ -82,13 +83,13 @@ def main() -> int:
     from chap_core.api_types import BacktestParams, EstimatorMode, EstimatorOptions, SearcherType
     from chap_core.assessment.evaluation import Evaluation
     from chap_core.assessment.metrics import calculate_metrics
-    from chap_core.cli_endpoints.evaluate import _run_eval
+    from chap_core.cli_endpoints.evaluate import eval_cmd
 
     RESULTS_DIR.mkdir(parents=True, exist_ok=True)
     summary_file = RESULTS_DIR / "summary.csv"
     columns = ("model", "dataset", "mode", "searcher", "objective", *METRICS, "output_file", "error")
     failures = 0
-    backtest = BacktestParams(n_splits=args.n_splits, n_periods=args.n_periods)
+    # backtest = BacktestParams(n_splits=args.n_splits, n_periods=args.n_periods)
 
     with summary_file.open("w", newline="", encoding="utf-8") as f:
         writer = csv.DictWriter(f, fieldnames=columns)
@@ -116,14 +117,14 @@ def main() -> int:
 
             try:
                 # The same CHAP evaluation entry point for both modes.
-                _run_eval(
+                eval_cmd(
                     model_name=model["name"],
                     dataset_csv=dataset,
                     output_file=output_file,
-                    backtest_params=backtest,
+                    # backtest_params=backtest,
                     estimator_options=options,
                 )
-                scores = calculate_metrics(Evaluation.from_file(output_file), list(METRICS))
+                scores = calculate_metrics(evaluation=Evaluation.from_file(output_file), metric_ids=list(METRICS))
                 row.update({metric: scores.get(metric) for metric in METRICS})
                 print("  " + ", ".join(f"{k}={scores.get(k)}" for k in METRICS), flush=True)
             except Exception as exc:
@@ -132,8 +133,8 @@ def main() -> int:
                 (RESULTS_DIR / f"{label}.error.txt").write_text(traceback.format_exc(), encoding="utf-8")
                 print(f"  FAILED: {row['error']}", flush=True)
 
-            writer.writerow(row)
-            f.flush()  # Keep partial results even if a later run fails.
+            writer.writerow(row) # writes no matter evaluation succeeds or failes
+            f.flush() # write immediately rather than temporarily in memory, keep partial results even if a later run fails.
 
     print(f"\nSummary: {summary_file}")
     print("HPO leaderboard CSVs are written next to each successful HPO .nc file.")
