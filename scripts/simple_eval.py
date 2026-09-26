@@ -34,7 +34,8 @@ def experiments():
     }
     models = {
         "minimal_template_example": {
-            "name": str(REPO_ROOT.parent / "minimal_template_example"),
+            # "name": str(REPO_ROOT.parent / "minimal_template_example"),
+            "name": "https://github.com/chap-models/minimal_template_example/",
             "search_space": HPO_DIR / "search_spaces" / "minimal_template_ss.yaml",
             "objective": "rmse",
         },
