@@ -72,7 +72,8 @@ def main() -> int:
         dataset for _, _, _, dataset, _, _ in runs
     } | {
         model["search_space"] for _, model, _, _, _, _ in runs
-    } | {REPO_ROOT.parent / "minimal_template_example"}
+    }
+    # } | {REPO_ROOT.parent / "minimal_template_example"}
     missing = sorted((p for p in required_files if not p.exists()), key=str)
     if missing:
         parser.error("Missing inputs:\n  " + "\n  ".join(map(str, missing)))
