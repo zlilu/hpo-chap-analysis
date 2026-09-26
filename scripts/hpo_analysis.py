@@ -13,11 +13,13 @@ from chap_core.assessment.metrics import get_metrics_registry
 SCRIPT_DIR = Path(__file__).resolve().parent
 ANALYSIS_ROOT = SCRIPT_DIR.parent
 CHAP_CORE_ROOT = ANALYSIS_ROOT.parent / "chap-core"
+PROJECT_ROOT = ANALYSIS_ROOT.parent
 
 # MODEL_NAME = "https://github.com/chap-models/minimal_template_example"
 # MODEL_NAME = "https://github.com/chap-models/chtorch.git"
 MODEL_NAME = "https://github.com/chap-models/auto_regressive_monthly_v2"
-DATASET_CSV = CHAP_CORE_ROOT / "example_data/vietnam_monthly.csv"
+# DATASET_CSV = CHAP_CORE_ROOT / "example_data/vietnam_monthly.csv"
+DATASET_CSV = "https://raw.githubusercontent.com/dhis2/climate-health-data/main/lao/chap_LAO_admin1_monthly.csv"
 CONFIG_YAML = ANALYSIS_ROOT / "scripts/auto_reg_monthly_v2_conf.yaml"
 OUTPUT_DIR = ANALYSIS_ROOT / "results/simple_hpo_eval"
 OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
@@ -25,7 +27,7 @@ OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
 N_PERIODS = 3
 N_SPLITS = 12 # monthly
 STRIDE = 1
-HPO_METRIC = "rmse"
+HPO_OBJECTIVE_METRIC = "rmse"
 SEARCHER = "tpe"
 MAX_TRIALS = 20
 # SEARCHERS = ["random", "tpe"]
@@ -111,33 +113,27 @@ def compute_all_metrics(evaluation):
         )
 
     results = {}
-
     for metric_id, metric_cls in get_metrics_registry().items():
         try:
             metric = metric_cls(
                 historical_observations=historical_df
             )
-
             if not metric.is_applicable(flat_data.observations):
                 print(f"Skipping {metric_id}: not applicable")
                 continue
-
             metric_df = metric.get_global_metric(
                 flat_data.observations,
                 flat_data.forecasts,
             )
-
             if len(metric_df) != 1:
                 print(
                     f"Skipping {metric_id}: "
                     f"expected 1 result, got {len(metric_df)}"
                 )
                 continue
-
             results[metric_id] = float(
                 metric_df["metric"].iloc[0]
             )
-
         except Exception as exc:
             print(f"Skipping {metric_id}: {exc}")
 
@@ -151,7 +147,6 @@ def compare_metrics(normal_metrics, hpo_metrics):
     )
 
     rows = []
-
     for metric_id in metric_ids:
         normal = normal_metrics.get(metric_id)
         hpo = hpo_metrics.get(metric_id)
@@ -161,12 +156,11 @@ def compare_metrics(normal_metrics, hpo_metrics):
 
         if normal is not None and hpo is not None:
             delta = hpo - normal
-
             if normal != 0:
                 relative_change = (
                     delta / abs(normal)
                 ) * 100
-
+        
         rows.append(
             {
                 "metric": metric_id,
@@ -174,7 +168,7 @@ def compare_metrics(normal_metrics, hpo_metrics):
                 "hpo": hpo,
                 "delta_hpo_minus_normal": delta,
                 "relative_change_pct": relative_change,
-                "hpo_objective": metric_id == HPO_METRIC,
+                "hpo_objective": metric_id == HPO_OBJECTIVE_METRIC,
             }
         )
 
@@ -196,7 +190,7 @@ def main():
         "--estimator-options.mode",
         "hpo",
         "--estimator-options.metric",
-        HPO_METRIC,
+        HPO_OBJECTIVE_METRIC,
         "--estimator-options.searcher",
         SEARCHER,
     ]

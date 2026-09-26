@@ -1,0 +1,46 @@
+feature_min_lag:
+  # values: [0, 1, 2]
+  type: int 
+  low: 0
+  high: 2
+  log: False 
+  step: 1
+feature_max_lag:
+  # values: [3, 4, 6]
+  type: int 
+  low: 3
+  high: 6
+  log: False
+  step: 1
+use_location_dummies:
+  values: [true, false]
+rf_target_lags:
+  # values: [1, 2, 3, 4, 6]
+  type: int
+  low: 1 
+  high: 6
+  log: False
+  steo: 1
+arima_order:
+  values:
+    - [0, 1, 1]
+    - [0, 1, 2]
+    - [1, 1, 0]
+    - [1, 1, 1]
+    - [2, 1, 0]
+    - [2, 1, 1]
+arima_level:
+  # values: [50, 60, 68, 75, 80, 90]
+  type: int
+  low: 50 
+  high: 90
+  log: False
+  steo: 10
+residual_variance:
+  values: [tree]
+residual_variance_scale:
+  type: float
+  low: 0.0
+  high: 1.5
+  log: False
+  step: 0.1
