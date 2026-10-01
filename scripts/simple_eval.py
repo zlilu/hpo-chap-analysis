@@ -113,6 +113,7 @@ def main() -> int:
     columns = ("model", "dataset", "mode", "searcher", "objective", *METRICS, "output_file", "error")
     failures = 0
     # backtest = BacktestParams(n_splits=args.n_splits, n_periods=args.n_periods)
+    backtest_params = BacktestParams(n_periods=3, n_splits=12, stride=3) # prevent validation overfitting, default uses (3, 7, 1)
 
     with summary_file.open("w", newline="", encoding="utf-8") as f:
         writer = csv.DictWriter(f, fieldnames=columns)
@@ -145,6 +146,7 @@ def main() -> int:
                     dataset_csv=dataset,
                     output_file=output_file,
                     # backtest_params=backtest,
+                    backtest_params=backtest_params,
                     estimator_options=options,
                 )
                 scores = calculate_metrics(evaluation=Evaluation.from_file(output_file), metric_ids=list(METRICS))
