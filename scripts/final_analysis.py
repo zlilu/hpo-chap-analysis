@@ -57,13 +57,13 @@ def experiments():
                 123: ANALYSIS_DIR / "model_configurations" / "mstl_123_mc.yaml",
             },
         },
-        "minimal_template_example": {
-            # "name": str(REPO_ROOT.parent / "minimal_template_example"),
-            "name": "https://github.com/chap-models/minimal_template_example/",
-            "search_space": ANALYSIS_DIR / "search_spaces" / "mini_temp_ss.yaml",
-            "objective": "rmse",
-            "model_configurations": {},
-        },
+        # "minimal_template_example": {
+        #     # "name": str(REPO_ROOT.parent / "minimal_template_example"),
+        #     "name": "https://github.com/chap-models/minimal_template_example/",
+        #     "search_space": ANALYSIS_DIR / "search_spaces" / "mini_temp_ss.yaml",
+        #     "objective": "rmse",
+        #     "model_configurations": {},
+        # },
     }
 
     for seed in SEEDS:
