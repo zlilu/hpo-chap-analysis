@@ -26,7 +26,7 @@ SEEDS = (17, 42, 123)
 MODEL_NAMES = (
     "auto_regressive_monthly_v2",
     "mstl_multistep_model",
-    "minimal_template_example",
+    # "minimal_template_example",
 )
 
 
