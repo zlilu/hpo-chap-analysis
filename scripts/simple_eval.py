@@ -29,7 +29,7 @@ MODEL_NAMES = (
 
 def experiments():
     datasets = {
-        "lao": "https://raw.githubusercontent.com/dhis2/climate-health-data/main/lao/chap_LAO_admin1_monthly.csv", # smallest
+        # "lao": "https://raw.githubusercontent.com/dhis2/climate-health-data/main/lao/chap_LAO_admin1_monthly.csv", # smallest
         "tha": "https://raw.githubusercontent.com/dhis2/climate-health-data/main/tha/chap_THA_admin1_monthly.csv", # largest
         "vnm": "https://raw.githubusercontent.com/dhis2/climate-health-data/main/vnm/chap_VNM_admin1_monthly.csv", # second
     }
