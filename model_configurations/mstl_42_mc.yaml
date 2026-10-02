@@ -1,0 +1,8 @@
+user_option_values:
+  random_seed: 42
+  rf_random_state: 42
+
+additional_continuous_covariates:
+  - rainfall
+  - mean_temperature
+  - mean_relative_humidity
