@@ -66,11 +66,11 @@ def experiments():
         },
     }
 
-    for model_id, model in models.items():
-        for dataset_id, dataset in datasets.items():
-            for mode, searcher in (("normal", None), ("hpo", "random"), ("hpo", "tpe")):
-                for max_trials in (None,) if searcher is None else MAX_TRIALS:
-                    for seed in SEEDS:
+    for seed in SEEDS:
+        for model_id, model in models.items():
+            for dataset_id, dataset in datasets.items():
+                for mode, searcher in (("normal", None), ("hpo", "random"), ("hpo", "tpe")):
+                    for max_trials in (None,) if searcher is None else MAX_TRIALS:
                         yield model_id, model, dataset_id, dataset, mode, searcher, max_trials, seed
 
 
