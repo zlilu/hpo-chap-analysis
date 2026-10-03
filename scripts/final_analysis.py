@@ -19,7 +19,7 @@ import sys
 
 ANALYSIS_DIR = Path(__file__).resolve().parent.parent
 REPO_ROOT = ANALYSIS_DIR.parent / "chap-core"
-RESULTS_DIR = ANALYSIS_DIR / "results" / "final_analysis"
+RESULTS_DIR = ANALYSIS_DIR / "results" / "final_analysis_2"
 METRICS = ("crps_log1p", "crps", "rmse", "mae", "coverage_10_90", "coverage_25_75", "winkler_score_10_90", "ratio_above_truth", "crps_norm")
 MAX_TRIALS = (20, 50, 100)
 SEEDS = (17, 42, 123)
@@ -149,7 +149,7 @@ def main() -> int:
     columns = ("model", "dataset", "mode", "searcher", "objective", *METRICS, "max_trials", "seed", "eval_runtime_s", "hpo_runtime_s", "output_file", "error")
     failures = 0
     # backtest = BacktestParams(n_splits=args.n_splits, n_periods=args.n_periods)
-    backtest_params = BacktestParams(n_periods=3, n_splits=12, stride=3) # prevent validation overfitting, default uses (3, 7, 1)
+    backtest_params = BacktestParams(n_periods=3, n_splits=12, stride=1) # prevent validation overfitting, default uses (3, 7, 1)
 
     with summary_file.open("w", newline="", encoding="utf-8") as f:
         writer = csv.DictWriter(f, fieldnames=columns)

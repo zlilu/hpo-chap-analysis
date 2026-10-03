@@ -32,8 +32,8 @@ learning_rate:
   low: 0.00001
   high: 0.003
   log: True
-cell:
-  values: [gru, simple]
+# cell:
+#   values: [gru, simple]
 rnn_features:
   type: int 
   low: 8
