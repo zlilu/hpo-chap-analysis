@@ -1,0 +1,11 @@
+user_option_values:
+  random_seed: 17
+  # covariate_lags:
+  #   rainfall: [1, 6]
+  #   mean_relative_humidity: [1, 4]
+  #   mean_temperature: [1, 2]
+
+additional_continuous_covariates:
+  - rainfall
+  - mean_temperature
+  - mean_relative_humidity

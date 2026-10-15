@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Compare normal evaluation with random/TPE HPO for two models and datasets.
+"""Compare normal evaluation with random/TPE HPO for three models and datasets.
 
 Place this file at chap-core/chap_core/hpo/scripts/final_analysis.py and run:
     python chap_core/hpo/scripts/final_analysis.py
@@ -22,7 +22,7 @@ REPO_ROOT = ANALYSIS_DIR.parent / "chap-core"
 RESULTS_DIR = ANALYSIS_DIR / "results" / "final_analysis_2"
 METRICS = ("crps_log1p", "crps", "rmse", "mae", "coverage_10_90", "coverage_25_75", "winkler_score_10_90", "ratio_above_truth", "crps_norm")
 MAX_TRIALS = (20, 50, 100)
-SEEDS = (17, 42, 123)
+SEEDS = (42, 123) # (17, 42, 123)
 MODEL_NAMES = (
     "auto_regressive_monthly_v2",
     "mstl_multistep_model",
