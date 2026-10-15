@@ -19,7 +19,7 @@ import sys
 
 ANALYSIS_DIR = Path(__file__).resolve().parent.parent
 REPO_ROOT = ANALYSIS_DIR.parent / "chap-core"
-RESULTS_DIR = ANALYSIS_DIR / "results" / "final_analysis_2"
+RESULTS_DIR = ANALYSIS_DIR / "results" / "final_analysis"
 METRICS = ("crps_log1p", "crps", "rmse", "mae", "coverage_10_90", "coverage_25_75", "winkler_score_10_90", "ratio_above_truth", "crps_norm")
 MAX_TRIALS = (20, 50, 100)
 SEEDS = (42, 123) # (17, 42, 123)
