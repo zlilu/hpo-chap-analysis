@@ -1,0 +1,6 @@
+user_option_values:
+  seed_offset: 123
+  n_ensemble: 1
+
+additional_continuous_covariates:
+  - mean_relative_humidity
