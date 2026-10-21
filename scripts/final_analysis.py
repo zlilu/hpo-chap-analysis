@@ -19,7 +19,7 @@ import sys
 
 ANALYSIS_DIR = Path(__file__).resolve().parent.parent
 REPO_ROOT = ANALYSIS_DIR.parent / "chap-core"
-RESULTS_DIR = ANALYSIS_DIR / "results" / "final_analysis"
+RESULTS_DIR = ANALYSIS_DIR / "results" / "final_analysis_3_years"
 METRICS = ("crps_log1p", "crps", "rmse", "mae", "coverage_10_90", "coverage_25_75", "winkler_score_10_90", "ratio_above_truth", "crps_norm")
 MAX_TRIALS = (20, 50, 100)
 SEEDS = (42, 123) # (17, 42, 123)
@@ -32,9 +32,9 @@ MODEL_NAMES = (
 
 def experiments():
     datasets = {
-        "lao": "https://raw.githubusercontent.com/dhis2/climate-health-data/main/lao/chap_LAO_admin1_monthly.csv", # smallest
-        "vnm": "https://raw.githubusercontent.com/dhis2/climate-health-data/main/vnm/chap_VNM_admin1_monthly.csv", # second
         "tha": "https://raw.githubusercontent.com/dhis2/climate-health-data/main/tha/chap_THA_admin1_monthly.csv", # largest
+        # "vnm": "https://raw.githubusercontent.com/dhis2/climate-health-data/main/vnm/chap_VNM_admin1_monthly.csv", # second
+        # "lao": "https://raw.githubusercontent.com/dhis2/climate-health-data/main/lao/chap_LAO_admin1_monthly.csv", # smallest
     }
     models = {
         "auto_regressive_monthly_v2": {
@@ -150,6 +150,7 @@ def main() -> int:
     failures = 0
     # backtest = BacktestParams(n_splits=args.n_splits, n_periods=args.n_periods)
     backtest_params = BacktestParams(n_periods=3, n_splits=12, stride=1) # prevent validation overfitting, default uses (3, 7, 1)
+    # backtest_params = BacktestParams(n_periods=3, n_splits=36, stride=1)
 
     with summary_file.open("w", newline="", encoding="utf-8") as f:
         writer = csv.DictWriter(f, fieldnames=columns)
