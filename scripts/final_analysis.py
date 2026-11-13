@@ -19,10 +19,10 @@ import sys
 
 ANALYSIS_DIR = Path(__file__).resolve().parent.parent
 REPO_ROOT = ANALYSIS_DIR.parent / "chap-core"
-RESULTS_DIR = ANALYSIS_DIR / "results" / "final_analysis"
+RESULTS_DIR = ANALYSIS_DIR / "results" / "regional_analysis_ex_below_20_cases"
 METRICS = ("crps_log1p", "crps", "rmse", "mae", "coverage_10_90", "coverage_25_75", "winkler_score_10_90", "ratio_above_truth", "crps_norm")
 MAX_TRIALS = (20, 50, 100)
-SEEDS = (42, 123) # (17, 42, 123)
+SEEDS = (17, 42, 123)
 MODEL_NAMES = (
     "auto_regressive_monthly_v2",
     "mstl_multistep_model",
@@ -32,9 +32,9 @@ MODEL_NAMES = (
 
 def experiments():
     datasets = {
+        "tha": "https://raw.githubusercontent.com/dhis2/climate-health-data/main/tha/chap_THA_admin1_monthly.csv", # largest
         "lao": "https://raw.githubusercontent.com/dhis2/climate-health-data/main/lao/chap_LAO_admin1_monthly.csv", # smallest
         "vnm": "https://raw.githubusercontent.com/dhis2/climate-health-data/main/vnm/chap_VNM_admin1_monthly.csv", # second
-        "tha": "https://raw.githubusercontent.com/dhis2/climate-health-data/main/tha/chap_THA_admin1_monthly.csv", # largest
     }
     models = {
         "auto_regressive_monthly_v2": {
@@ -150,8 +150,9 @@ def main() -> int:
     failures = 0
     # backtest = BacktestParams(n_splits=args.n_splits, n_periods=args.n_periods)
     backtest_params = BacktestParams(n_periods=3, n_splits=12, stride=1) # prevent validation overfitting, default uses (3, 7, 1)
+    # backtest_params = BacktestParams(n_periods=3, n_splits=36, stride=1)
 
-    with summary_file.open("w", newline="", encoding="utf-8") as f:
+    with summary_file.open("a", newline="", encoding="utf-8") as f:
         writer = csv.DictWriter(f, fieldnames=columns)
         writer.writeheader()
 
@@ -199,6 +200,7 @@ def main() -> int:
                     # backtest_params=backtest,
                     backtest_params=backtest_params,
                     estimator_options=options,
+                    # plot=True,
                 )
                 # scores = calculate_metrics(evaluation=Evaluation.from_file(output_file), metric_ids=list(METRICS))
                 evaluation = Evaluation.from_file(output_file)
