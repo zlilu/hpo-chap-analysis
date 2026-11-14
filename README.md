@@ -43,7 +43,7 @@ uv run --project ../chap-core ./scripts/final_analysis.py --model-name mstl_mult
 ## Repository structure
 
 - `scripts/` — Experiment scripts
-- `search_spaces/` — HPO search-space definitions
+- `search_spaces/` — HPO search space definitions
 - `model_configurations/` — Model configuration files
 - `results/` — Generated evaluation results
 
