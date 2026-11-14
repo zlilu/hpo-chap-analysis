@@ -10,11 +10,11 @@ For each model and dataset, the script compares a standard evaluation with HPO u
 
 - **Search methods:** random search and TPE
 - **Trial budgets:** 20, 50, and 100
-- **Random seeds:** 42 and 123
+- **Random seeds:** 17, 42 and 123
 - **Optimization metric:** `crps_log1p`
 - **Backtesting:** 12 splits, 3 forecast periods, stride 1
 
-This produces 84 evaluation runs in total. The script records predictive metrics and runtime for each run.
+This produces 108 HPO runs in total. The script records predictive metrics and runtime for each run.
 
 ## Setup
 
